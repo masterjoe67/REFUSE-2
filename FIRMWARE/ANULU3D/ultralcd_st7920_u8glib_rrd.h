@@ -2,6 +2,8 @@
 #define ULCDST7920_H
 
 #include "anulu3d.h"
+#include <U8glib.h>
+#include "delay.h"
 
 #ifdef U8GLIB_ST7920
 
@@ -19,9 +21,48 @@
 #define WIDTH 128
 #define HEIGHT 64
 
-#include <U8glib.h>
 
-static void ST7920_SWSPI_SND_8BIT(uint8_t val)
+
+#if F_CPU >= 20000000
+#define CPU_ST7920_DELAY_1 DELAY_NS(0)
+#define CPU_ST7920_DELAY_2 DELAY_NS(0)
+#define CPU_ST7920_DELAY_3 DELAY_NS(50)
+#elif F_CPU == 16000000
+#define CPU_ST7920_DELAY_1 DELAY_NS(0)
+#define CPU_ST7920_DELAY_2 DELAY_NS(0)
+#define CPU_ST7920_DELAY_3 DELAY_NS(63)
+#else
+#error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd.h'"
+#endif
+
+#ifndef ST7920_DELAY_1
+#define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+#endif
+#ifndef ST7920_DELAY_2
+#define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+#endif
+#ifndef ST7920_DELAY_3
+#define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+#endif
+
+#define ST7920_SND_BIT \
+  WRITE(ST7920_CLK_PIN, LOW);        ST7920_DELAY_1; \
+  WRITE(ST7920_DAT_PIN, val & 0x80); ST7920_DELAY_2; \
+  WRITE(ST7920_CLK_PIN, HIGH);       ST7920_DELAY_3; \
+  val <<= 1
+
+static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+	ST7920_SND_BIT; // 1
+	ST7920_SND_BIT; // 2
+	ST7920_SND_BIT; // 3
+	ST7920_SND_BIT; // 4
+	ST7920_SND_BIT; // 5
+	ST7920_SND_BIT; // 6
+	ST7920_SND_BIT; // 7
+	ST7920_SND_BIT; // 8
+}
+
+/*static void ST7920_SWSPI_SND_8BIT(uint8_t val)
 {
   uint8_t i;
   for( i=0; i<8; i++ )
@@ -31,7 +72,7 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val)
     val<<=1;
     WRITE(ST7920_CLK_PIN,1);
   }
-}
+}*/
 
 #define ST7920_CS()              {WRITE(ST7920_CS_PIN,1);u8g_10MicroDelay();}
 #define ST7920_NCS()             {WRITE(ST7920_CS_PIN,0);}
