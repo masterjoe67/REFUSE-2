@@ -39,7 +39,6 @@ static void lcd_status_screen();
 #ifdef ULTIPANEL
 extern bool powersupply;
 static void lcd_main_menu();
-static void lcd_tune_menu();
 //static void lcd_prepare_menu();
 static void lcd_modesel_menu();
 static void lcd_prepare_laser_menu();
@@ -49,13 +48,12 @@ static void lcd_laser_menu();
 static void lcd_move_focus();
 static void lcd_move_z_focus();
 //static void lcd_control_temperature_menu();
-static void lcd_control_temperature_preheat_pla_settings_menu();
-static void lcd_control_temperature_preheat_abs_settings_menu();
+
 static void lcd_control_motion_menu();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
-static void lcd_control_retract_menu();
+
 static void lcd_sdcard_menu();
 
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audiable feedback that something has happend
@@ -248,40 +246,19 @@ static void lcd_sdcard_stop()
     {
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
-    autotempShutdown();
+ 
 }
 
 /* Menu implementation */
 static void lcd_main_menu()
 {
 	START_MENU();
-	switch(machine_mode)
-	{
-	case 0:
-		MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
-		if (movesplanned() || IS_SD_PRINTING)
-		{
-			MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-		}else{
-			//MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-			MENU_ITEM(submenu, MSG_MODE, lcd_modesel_menu);
-		}
-		MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
-		break;
-	case 1:
-		MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
-		//MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-		MENU_ITEM(submenu, MSG_MODE, lcd_modesel_menu);
-		MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
-		break;
-	case 2:
+	
 		MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
 		MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_laser_menu);
 		MENU_ITEM(submenu, MSG_LASER, lcd_laser_menu);
 		MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
-		break;
-	}
 #ifdef SDSUPPORT
 		if (card.cardOK)
 		{
@@ -325,110 +302,18 @@ void mode_printer()
 
 void mode_cnc()
 {
-	disable_heater();
+	
 	machine_mode = CNC;
 	lcd_return_to_status();
 }
 
 void mode_lasercut()
 {
-	disable_heater();
+	
 	machine_mode = LASERCUT;
 	lcd_return_to_status();
 }
 
-#ifdef BABYSTEPPING
-static void lcd_babystep_x()
-{
-    if (encoderPosition != 0)
-    {
-        babystepsTodo[X_AXIS]+=(int)encoderPosition;
-        encoderPosition=0;
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Babystepping X"),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-
-static void lcd_babystep_y()
-{
-    if (encoderPosition != 0)
-    {
-        babystepsTodo[Y_AXIS]+=(int)encoderPosition;
-        encoderPosition=0;
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Babystepping Y"),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-
-static void lcd_babystep_z()
-{
-    if (encoderPosition != 0)
-    {
-        babystepsTodo[Z_AXIS]+=BABYSTEP_Z_MULTIPLICATOR*(int)encoderPosition;
-        encoderPosition=0;
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Babystepping Z"),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-#endif //BABYSTEPPING
-
-static void lcd_tune_menu()
-{
-    START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
-#if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
-#endif
-#if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
-#endif
-#if TEMP_SENSOR_BED != 0
-    MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
-#endif
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-    MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-
-#ifdef BABYSTEPPING
-    #ifdef BABYSTEP_XY
-      MENU_ITEM(submenu, "Babystep X", lcd_babystep_x);
-      MENU_ITEM(submenu, "Babystep Y", lcd_babystep_y);
-    #endif //BABYSTEP_XY
-    MENU_ITEM(submenu, "Babystep Z", lcd_babystep_z);
-#endif
-#ifdef FILAMENTCHANGEENABLE
-     MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
-#endif
-    END_MENU();
-}
 
 
 //Anulu 3d specific

@@ -534,8 +534,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
   while(block_buffer_tail == next_buffer_head)
-  {
-    manage_heater(); 
+  { 
     manage_inactivity(); 
     lcd_update();
   }

@@ -120,7 +120,16 @@
     <ClInclude Include="dogm_font_data_anulu3d.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="Visual Micro\.ANULU3D.vsarduino.h">
+    <ClInclude Include="example_configurations\delta\Configuration.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="example_configurations\delta\Configuration_adv.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="laser.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.ANULU3D.vsarduino.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -180,6 +189,9 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="anulu3d_main.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="laser.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>

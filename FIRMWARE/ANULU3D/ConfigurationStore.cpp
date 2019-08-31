@@ -164,8 +164,7 @@ void Config_RetrieveSettings()
         #endif
         EEPROM_READ_VAR(i,lcd_contrast);
 
-		// Call updatePID (similar to when we have processed M301)
-		//updatePID();
+		
         //SERIAL_ECHO_START;
         //SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
